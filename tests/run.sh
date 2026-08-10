@@ -38,6 +38,9 @@ assert_exit "critical exits non-zero" 1 -- $SL "$T/a" --no-color
 echo "== shell-escape binaries (GTFOBins) =="
 printf 'bob ALL=(ALL) NOPASSWD: /usr/bin/vim\n' > "$T/vim"
 assert "NOPASSWD vim is HIGH"    "shell escape"        -- $SL "$T/vim" --no-color
+printf 'digest ALL=(root) NOPASSWD: sha256:abcdef0123456789 /bin/sh\n' > "$T/digest"
+assert "digest-prefixed shell is detected" "sudo to 'sh' allows a shell escape" -- $SL "$T/digest" --no-color
+assert_exit "digest-prefixed shell exits non-zero" 1 -- $SL "$T/digest" --no-color
 assert "vim high severity"       "HIGH"                -- $SL "$T/vim" --no-color
 printf 'carol ALL=(root) /usr/bin/find\n' > "$T/find"
 assert "with-password find is MEDIUM" "MEDIUM"         -- $SL "$T/find" --no-color

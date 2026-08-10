@@ -62,6 +62,7 @@ class Finding:
 
 def _basename(cmd: str) -> str:
     cmd = cmd.strip().strip('"')
+    cmd = re.sub(r"^(?:sha224|sha256|sha384|sha512):[A-Fa-f0-9]+\s+", "", cmd)
     first = cmd.split()[0] if cmd.split() else cmd
     return os.path.basename(first)
 
