@@ -144,6 +144,11 @@ def audit_file(path: str) -> list[Finding]:
                 bad = sorted(kept & DANGEROUS_ENV)
                 if bad:
                     out.append(Finding("HIGH", where, f"env_keep preserves dangerous variable(s): {', '.join(bad)}"))
+            mk2 = re.search(r"env_add_path\s*[+]?=\s*\"?([^\"]+)\"?", body)
+            if mk2:
+                out.append(Finding("HIGH", where, f"env_add_path extends PATH for sudo ({mk2.group(1).strip()}); hijack risk via writable entries"))
+            if re.search(r"\bsecure_path\s*=", body) is None and "Defaults" in body and re.search(r"env_keep|env_add_path", body):
+                out.append(Finding("MEDIUM", where, "Defaults modifies environment without secure_path; sudo may inherit caller PATH"))
             if re.search(r"\btargetpw\b|\brootpw\b", body):
                 pass  # informational only; not flagged
             continue
